@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/autorisation.css">
+    <script src="/autorisation.js"></script>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="header_logo">ТРИП</a>
+        <nav>
+            <a href="index.html">Главная</a>
+            <a href="basket.html">Корзина</a>
+        </nav>
+        <div class="header_phone">
+            +7 (812) 909 20 20
+        </div>
+    </header>
+    <main>
+        <div class="main_link">
+            &lt;- <a href="index.html">Вернуться на главную</a>
+        </div>
+        <div class="main_autorisation">
+            <form class="main_autorisation_form" action="/autorisation" method="post">
+                <div class="main_autorisation_form_title">
+                    Форма авторизации
+                </div>
+                <input type="email" name="mail" id="mail" placeholder="логин">
+                <input type="password" name="password" id="password" placeholder="пароль">
+                <button id="autoBut" type="submit">Войти</button>
+            </form>
+        </div>
+    </main>
+    <footer>
+        <div class="footer_text">
+            © 2024 Mirskow
+        </div>
+    </footer>
+</body>
+</html>

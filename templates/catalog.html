@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/catalog.css">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/catalog.js"></script>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="header_logo">ТРИП</a>
+        <nav>
+            <a href="index.html">Главная</a>
+            <a href="basket.html">Корзина</a>
+        </nav>
+        <div class="header_phone">
+            +7 (812) 909 20 20
+        </div>
+    </header>
+    <main>
+        <div class="main_link">
+            &lt;- <a href="index.html">Вернуться на главную</a>
+        </div>
+        <div class="main_filter">
+            <div class="main_filter_title">
+                Фильтры
+            </div>
+            <div class="main_filter_block">
+                <form id="filterForm" action="/filter" method="get">
+                    <input type="text" name="form" id="from" placeholder="Откуда">
+                    <input type="text" name="to" id="to" placeholder="Куда">
+                    <input type="date" name="date_s" id="date_s">
+                    <button type="submit">Применить</button>
+                </form>
+            </div>
+            <button id="basket" class="main_filter_basket">Корзина</button>
+        </div>
+        <div id="main_catalog">
+        </div>
+    </main>
+    <footer>
+        <div class="footer_text">
+            © 2024 Mirskow
+        </div>
+    </footer>
+</body>
+</html>
