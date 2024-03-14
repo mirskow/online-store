@@ -1,0 +1,41 @@
+
+.main_orders{
+    display: flex;
+    flex-direction: column;
+}
+
+.main_orders_personal{
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid black;
+    margin-bottom: 10px;
+    padding: 20px;
+}
+
+#personal_block{
+    display: flex;
+    background-color: #fff;
+    margin: 10px;
+    font-size: 24px;
+}
+
+
+.main_orders_order{
+    display: flex;
+    flex-direction: column;
+}
+
+.main_orders_title{
+    display: flex;
+    background-color: #fff;
+    font-weight: bold;
+    font-size: 30px;
+    margin-bottom: 10px;
+    padding: 20px;
+}
+
+
+.main_orders_button{
+    padding: 20px;
+    font-weight: bold;
+}
