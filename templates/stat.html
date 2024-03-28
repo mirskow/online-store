@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/stat.css">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/stat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/script.js"></script>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="header_logo">ТРИП</a>
+        <nav>
+            <a href="index.html">Главная</a>
+            <a href="basket.html">Корзина</a>
+        </nav>
+        <div class="header_phone">
+            +7 (812) 909 20 20
+        </div>
+    </header>
+    <main>
+        <div class="main_link">
+            &lt;- <a href="index.html">Вернуться на главную</a>
+        </div>
+        <div class="main_stat flex_block">
+            <div class="main_stat_title flex_block">
+                <div class="flex_block dist">
+                    Отчетный день: 
+                </div>
+                <div class="flex_block dist">
+                    <input type="date" name="reportday" id="reportday">
+                </div>
+                <div class="flex_block dist">
+                    <button id="getStat">Показать</button>
+                </div>
+            </div>
+            <div class="main_stat_graph">
+                <div class="subblock">
+                    <canvas id="userGraph"></canvas>
+                </div>
+                <div class="subblock">
+                    <canvas id="conversionGraph"></canvas>
+                </div>
+                <div class="subblock">
+                    <canvas id="saleGraph"></canvas>
+                </div>
+                <div class="subblock">
+                    <canvas id="timeGraph"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="footer_text">
+            © 2024 Mirskow
+        </div>
+    </footer>
+</body>
+</html>

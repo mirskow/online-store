@@ -1,0 +1,31 @@
+
+
+.flex_block{
+    display: flex;
+}
+
+.history_title{
+    
+}
+
+
+.main_history{
+    flex-direction: column;
+}
+
+.main_history_block{
+    background-color: #fff;
+    border-radius: 10px;
+    margin-top: 20px;
+    padding: 10px;
+}
+
+.main_history_block_desc{
+    flex: 2;
+    align-items: center;
+}
+
+.main_history_block_but{
+    flex: 1;
+    justify-content: right;
+}

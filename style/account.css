@@ -1,32 +1,20 @@
 
 .main_account{
     display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .main_account_data{
     display: flex;
     flex-direction: column;
     flex: 1;
+    width: 50%;
 }
 
-.main_account_photo{
+.main_account_but{
     display: flex;
-    flex: 1;
-    background-color: #fff;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    margin-left: 10px;
-}
-
-.main_orders{
-    display: flex;
-    flex-direction: column;
-}
-.main_orders_title{
-    display: flex;
-    background-color: #fff;
-    border-radius: 10px;
-    padding: 20px;
+    justify-content: space-between;
     margin-bottom: 10px;
 }
 

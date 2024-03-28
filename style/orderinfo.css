@@ -1,0 +1,17 @@
+.main_product_order{
+    display: flex;
+    background-color: #fff;
+    border-radius: 30px;
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.ticket{
+    display: flex;
+    background-color: #fff;
+    border-radius: 30px;
+    text-align: center;
+    padding: 20px;
+    margin-top: 20px;
+}

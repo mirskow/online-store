@@ -2,30 +2,30 @@ const express = require('express'),
     app = express(),
     session = require('express-session'),
     { Pool } = require('pg');
+    fs = require('fs');
+    cookieParser = require('cookie-parser');
+    nodemailer = require('nodemailer');
 
 const pool = new Pool({
-    user: '',
-    host: '',
+    user: 'postgres',
+    host: 'localhost',
     database: '',
     password: '',
-    port: ,
+    port: 5432,
 });
 
-const nodemailer = require('nodemailer');
 
-// Создайте объект транспорта для отправки писем
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: '',
-        pass: ''
+        pass: 'ogwy iszk dzyg tqgg'
     }
 });
 
-const host = '127.0.0.1';
+const host = 'localhost';
 const port = 8800;
 
-const card = []
 var totallCost = 0;
 
 app.use(express.static(__dirname + "/templates/"));
@@ -43,6 +43,114 @@ app.use(session({
         maxAge: 24 * 60 * 60 * 1000 // 24 часа
     }
 }));
+
+app.use(cookieParser());
+
+app.use((req, res, next) => {
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+    const logData = `IP: ${ip} - - ${new Date().toISOString()} - ${req.method} ${req.url},\n Browser: ${userAgent}\n\n`;
+    fs.appendFile('access.log', logData, (err) => {
+        if (err) {
+            console.error('Ошибка при записи в лог-файл:', err);
+        }
+    });
+    next();
+});
+
+app.use((req, res, next) => {
+    const currentTime = new Date().getTime();
+    // Обновляем куки с временем нахождения на сайте
+    try {
+        const cookieOptions = {
+            maxAge: 900000, // 15 минут
+            httpOnly: false
+        };
+
+        // Устанавливаем куки с временем нахождения на странице и датой посещения
+        res.cookie('timeOnPage', currentTime, cookieOptions);
+        res.cookie('visitDate', new Date().toISOString(), cookieOptions);
+    } catch (err) {
+        console.error('Error executing query', err);
+    }
+    next();
+});
+
+async function addVisit(pageId, userId, visitDate, timeSpent){
+    try {
+        console.log(visitDate);
+        const client = await pool.connect();
+        const visitQuery = `
+            INSERT INTO Visits (page_id, client_id, visit_date, time_spent)
+            VALUES ($1, $2, $3, $4)
+        `;
+        await client.query(visitQuery, [pageId, userId, visitDate, timeSpent]);
+
+        // Обновляем last_visit и total_time для данного пользователя
+        const updateQuery = `
+            UPDATE Statistics_Users
+            SET last_visit = $1, total_time = total_time + $2
+            WHERE user_id = $3
+        `;
+        await client.query(updateQuery, [visitDate, timeSpent, userId]);
+
+        client.release();
+    } catch (error) {
+        console.error('Error executing query:', error);
+    }
+}
+
+async function getPage(path){
+    try {
+        const client = await pool.connect();
+        const pageQuery = `
+            SELECT id_page FROM Pages WHERE path_page = $1
+        `;
+        const pageResult = await client.query(pageQuery, [path]);
+        if (pageResult.rows.length > 0) {
+            const page = pageResult.rows[0].id_page;
+            console.log(page);
+            return page;
+        } else {
+            console.log('Страница не найдена в базе данных');
+        }
+        client.release();
+    } catch (error) {
+        console.error('Error executing query:', error);
+    }
+}
+
+app.post('/updateVisits', async(req, res)=>{
+    const { timeSpent, currentPageUrl, visitDate } = req.body;
+    console.log('Время, проведенное на сайте:', timeSpent, visitDate);
+    console.log('Текущая страница:', currentPageUrl);
+
+    const path = currentPageUrl.split('/').pop();
+    const page = await getPage(path);
+
+    if(req.session.user){
+        addVisit(page, req.session.user.id_client, visitDate, timeSpent);
+    }
+    else
+    {
+        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        const userAgent = req.headers['user-agent'];
+        const logData = `IP: ${ip} -- / ${visitDate} / pages - ${currentPageUrl}, time - ${timeSpent} \n Browser: ${userAgent}\n\n`;
+        fs.appendFile('visits.log', logData, (err) => {
+            if (err) {
+                console.error('Ошибка при записи в лог-файл:', err);
+            }
+        });
+    }
+
+    res.sendStatus(200);
+});
+
+app.get('/logout', (req, res) => {
+    delete req.session.user;
+    res.clearCookie('username');
+    res.redirect('/index.html');
+});
 
 app.get('/getItems', async (_, res) => {
     try {
@@ -161,7 +269,6 @@ app.get('/getProduct', async (req, res) =>{
     }
 });
 
-
 app.get('/getCars', async(req, res) => {
     try {
         const typecar = req.query.typecar;
@@ -264,6 +371,8 @@ app.post('/autorisation', async (req, res) => {
         if (data.length == 1) {
             req.session.user = data[0];
             req.session.save();
+            const name = data[0].first_name;
+            res.cookie('username', name, { maxAge: 900000, httpOnly: false });
             res.json(data);
         } else {
             res.status(500).json({ error: 'No data found' });
@@ -279,10 +388,45 @@ app.get('/getMyOrders', async(req, res)=>{
         const { email } = req.body;
         const client = await pool.connect();
         const result = await client.query(`
-            select orders.id_order, tickets.id_ticket, orders.date_order, s_to.town as town_s, s_from.town as town_e, trips.distance
-            from station as s_to, station as s_from, orders, routes, clients, tickets, trips
-            where clients.id_client = ${req.session.user.id_client} and clients.id_client = orders.client_id and orders.id_order = tickets.order_id and tickets.route_id = routes.id_route
-                and routes.trip_id = trips.id_trip and trips.station_s = s_from.id_station and trips.station_e = s_to.id_station
+        SELECT 
+            orders.id_order, 
+            tickets.id_ticket, 
+            orders.date_order, 
+            s_to.town AS town_s,
+            s_to.name_station as station_s, 
+            s_from.town AS town_e,
+            s_from.name_station as station_e,  
+            trips.distance,
+            tickets.place_id,
+            cars.id_car,
+            cars.train_id,
+            routes.train_id,
+            routes.id_route,
+            routes.data_e,
+            routes.data_s,
+            routes.time_e,
+            routes.time_s,
+            orders.cost_order
+        FROM 
+            orders
+        JOIN 
+            clients ON clients.id_client = orders.client_id
+        JOIN 
+            tickets ON orders.id_order = tickets.order_id
+        JOIN 
+            routes ON tickets.route_id = routes.id_route
+        JOIN 
+            trips ON routes.trip_id = trips.id_trip
+        JOIN 
+            station AS s_from ON trips.station_s = s_from.id_station
+        JOIN 
+            station AS s_to ON trips.station_e = s_to.id_station
+        JOIN 
+            places ON places.id_place = tickets.place_id
+        JOIN
+            cars ON places.car_id = cars.id_car
+        WHERE 
+            clients.id_client = ${req.session.user.id_client};
         `);
         const data = result.rows;
         res.json(data);
@@ -348,6 +492,54 @@ app.get('/buy', async (req, res) => {
         res.status(500).send('Ошибка сервера');
     } finally {
         client.release();
+    }
+});
+
+app.get('/getStat', async (req, res) => {
+    try {
+        const date = req.query.date;
+        const client = await pool.connect();
+        const result = await client.query(`
+            SELECT *
+            FROM ReportDays
+            WHERE date_report BETWEEN '${date}'::date - INTERVAL '3 days' AND '${date}'::date
+        `);
+        const data = result.rows;
+        res.json(data);
+    } catch (err) {
+        console.error('Error executing query', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/getTimeStat', async (req, res)=> {
+    try {
+        const date = req.query.date;
+        console.log(date);
+        const client = await pool.connect();
+        const result = await client.query(`
+            SELECT 
+                p.name_page, 
+                SUM(v.time_spent) AS time_spent,
+                v.visit_date
+            FROM 
+                Visits AS v
+            JOIN 
+                Pages AS p ON v.page_id = p.id_page
+            WHERE 
+                v.visit_date BETWEEN '${date}'::date - INTERVAL '3 days' AND '${date}'::date
+            GROUP BY 
+                p.name_page, 
+                v.visit_date
+            ORDER BY 
+                v.visit_date;
+        `);
+        const data = result.rows;
+        console.log(data);
+        res.json(data);
+    } catch (err) {
+        console.error('Error executing query', err);
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 

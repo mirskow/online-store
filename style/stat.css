@@ -1,0 +1,31 @@
+.main_stat_graph {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Два столбца равной ширины */
+    grid-template-rows: repeat(3, 1fr); /* Три строки равной высоты */
+    gap: 10px; /* Пространство между элементами */
+}
+
+.subblock {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 10px;
+}
+
+.subblock canvas {
+    width: 100%; /* Ширина графика в блоке будет равна 100% ширины блока */
+    height: 100%; /* Высота графика в блоке будет равна 100% высоты блока */
+}
+
+.main_stat_title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.dist{
+    margin-right: 10px;
+}

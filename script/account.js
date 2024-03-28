@@ -22,35 +22,33 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('/getMyOrders')
     .then(response => response.json())
     .then(data => {
-        const tbody = document.querySelector('tbody');
         let totalDistance = 0;
         data.forEach(item => {
-            const row = document.createElement('tr');
-
-            const orderIdCell = document.createElement('td');
-            orderIdCell.textContent = item.id_order;
-            row.appendChild(orderIdCell);
-        
-            const orderDateCell = document.createElement('td');
-            orderDateCell.textContent = item.date_order;
-            row.appendChild(orderDateCell);
-        
-            const ticketIdCell = document.createElement('td');
-            ticketIdCell.textContent = item.id_ticket;
-            row.appendChild(ticketIdCell);
-
-            const toCell = document.createElement('td');
-            toCell.textContent = item.town_e;
-            row.appendChild(toCell);
-        
-            const fromCell = document.createElement('td');
-            fromCell.textContent = item.town_s;
-            row.appendChild(fromCell);
-
             totalDistance += item.distance;
-        
-            tbody.appendChild(row);
         });
         document.getElementById("main_account_distance").innerHTML = `Всего проехали: ${totalDistance} км.`;
+    });
+
+    document.getElementById("butHistory").addEventListener('click', ()=>{
+        window.location.href = '/history.html';
+    });
+
+    document.getElementById("butExist").addEventListener('click', () => {
+        fetch('/logout', {
+            method: 'GET',
+        })
+            .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                return response.json();
+            }
+            })
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+            });
     });
 });
